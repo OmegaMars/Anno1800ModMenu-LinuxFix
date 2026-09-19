@@ -16,7 +16,7 @@ The code for this mod fix was created by AI and briefly reviewed by me.
 
 1. Copie the original Mod Menu DLLs into `Anno 1800/Bin/Win64`
 2. Download and extract the fix into `Anno 1800/Bin/Win64`
-3. Execute the `install.sh` script:
+3. Execute the `install.sh` script (The script just copies necessary proton files into the anno directory.):
 ```bash
 sudo chmod +x ./install.sh
 ./install.sh \
