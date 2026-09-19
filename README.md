@@ -6,6 +6,7 @@ I will NOT maintain this fix further.
 On Linux, loading the mod DLLs does not work in the same way as on Windows systems.
 This fix should solve this problem.
 I tested it on my Linux Mint system with Anno 1800 started from Lutris, as I don't have the Steam version of the game. In theory, it should also work for the Steam version, but I can't test it there.
+I have successfully tested it with Proton Hotfix, -Experimental and -GE 11.07. Everytime with DX11.
 
 If it does not work, feel free to use the fix as a basis for your own solution.
 
@@ -25,7 +26,7 @@ sudo chmod +x ./install.sh
 4. Don't forget to set the dll Overrides for Proton. (`WINEDLLOVERRIDES="version=n,b" %command%`)
 
 
-# Anno1800ModMenu
+# Anno1800ModMenu (origianl Readme)
 A mod menu for Anno 1800 based on Dear ImGui. You can show/hide the menu with F7.
 
 
@@ -44,7 +45,7 @@ So I will be trying make it possible to turn on/off and edit mods using this gui
 
 Dear ImGui: https://github.com/ocornut/imgui
 
-# Linux / Wine / Proton (Steam & Lutris)
+# Linux / Wine / Proton (Steam & Lutris) Details for the fix.
 
 On Linux, `TextShaping.dll` is usually not loaded by Wine, so the original proxy never starts. Use the `version.dll` proxy instead.
 
