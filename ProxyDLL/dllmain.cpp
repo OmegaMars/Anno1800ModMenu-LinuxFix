@@ -1,56 +1,42 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
-#include "pch.h"
+#include <windows.h>
 
-HMODULE hm;
+#include "SystemLibrary/SystemLibraryLoader.h"
 
-DWORD WINAPI Init(LPVOID lpParameter){
-    while (GetModuleHandle(L"d3d9.dll") == NULL) {
-        Sleep(1);
-    }
-    while (GetModuleHandle(L"d3d11.dll") == NULL) {
-        Sleep(1);
-    }
-    while (GetModuleHandle(L"d3d12.dll") == NULL) {
-        Sleep(1);
-    }
+HMODULE g_real_version_module = nullptr;
 
-    Sleep(1000);
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved) {
+    (void)lpReserved;
 
-    //while (!GetAsyncKeyState(VK_F7) & 1) {
-    //    Sleep(1);
-    //}
+    if (reason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(hModule);
 
+        // Do not CreateThread here (Wine loader-lock). Menu injection starts
+        // lazily from the first forwarded version.dll export instead.
+        SystemLibraryLoader system_loader;
+        g_real_version_module = system_loader.LoadFromModuleDirectory(
+            hModule,
+            L"version_orig.dll"
+        );
+        if (g_real_version_module == nullptr
+            || g_real_version_module == hModule) {
+            OutputDebugStringW(
+                L"DllMain: version_orig.dll failed, trying system version.dll\n"
+            );
+            g_real_version_module = system_loader.LoadFromSystemDirectory(
+                L"version.dll"
+            );
+        }
+        if (g_real_version_module == nullptr
+            || g_real_version_module == hModule) {
+            OutputDebugStringW(
+                L"DllMain: real version library unavailable; continuing\n"
+            );
+            g_real_version_module = nullptr;
+        }
 
-    HANDLE isDirectX12 = GetModuleHandle(L"d3d11on12.dll");
-
-    //MessageBox(NULL, (LPSTR)isDirectX12, "", MB_OK);
-
-    if (isDirectX12 == NULL) {
-        LoadLibrary(L"Anno1800ModMenuDX11.dll");
-    }
-    else {
-        LoadLibrary(L"Anno1800ModMenuDX12.dll");
-    }
-    
-    FreeLibraryAndExitThread(hm, 0);
-
-    return 0;
-}
-
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-
-    if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-    {
-        hm = hModule;
-        CreateThread(NULL, 0, Init, NULL, 0, NULL);
+        // Always succeed so a failed inject cannot prevent the game from starting.
+        return TRUE;
     }
 
-
-   
     return TRUE;
 }
-
